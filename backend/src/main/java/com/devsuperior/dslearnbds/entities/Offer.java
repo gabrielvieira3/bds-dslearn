@@ -1,11 +1,19 @@
 package com.devsuperior.dslearnbds.entities;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_offer")
@@ -16,8 +24,10 @@ public class Offer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String edition;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant startMoment;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant endMoment;
 
@@ -28,10 +38,14 @@ public class Offer implements Serializable {
     @OneToMany(mappedBy = "offer")
     private List<Resource> resources = new ArrayList<>();
 
-    public Offer(){
+    @OneToMany(mappedBy = "offer")
+    private List<Topic> topics = new ArrayList<>();
+
+    public Offer() {
     }
 
     public Offer(Long id, String edition, Instant startMoment, Instant endMoment, Course course) {
+        super();
         this.id = id;
         this.edition = edition;
         this.startMoment = startMoment;
@@ -83,19 +97,33 @@ public class Offer implements Serializable {
         return resources;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Offer offer = (Offer) o;
-
-        return Objects.equals(id, offer.id);
+    public List<Topic> getTopics() {
+        return topics;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Offer other = (Offer) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
     }
 }
 

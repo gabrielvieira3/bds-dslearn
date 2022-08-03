@@ -7,31 +7,52 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.devsuperior.dslearnbds.entities.pk.EnrollmentPK;
+
 @Entity
 @Table(name = "tb_enrollment")
 public class Enrollment {
-  //Chave composta
+
   @EmbeddedId
-  private EnrollmentPK id = new EnrollmentPK(); //Instancia porque foi vc q criou!!
+  private EnrollmentPK id = new EnrollmentPK();
+
   @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
   private Instant enrollMoment;
+
   @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-  private Instant refunddMoment;
+  private Instant refundMoment;
   private boolean available;
   private boolean onlyUpdate;
 
   @ManyToMany(mappedBy = "enrollmentsDone")
   private Set<Lesson> lessonsDone = new HashSet<>();
-  public Enrollment(){
+
+  @OneToMany(mappedBy = "enrollment")
+  private List<Deliver> deliveries = new ArrayList<>();
+
+  public Enrollment() {
   }
 
-  //Atenção Constructor
-  public Enrollment(User user, Offer offer, Instant enrollMoment, Instant refunddMoment, boolean available, boolean onlyUpdate) {
-    //Atenção q seta nos construtores
+  public Enrollment(User user, Offer offer, Instant enrollMoment, Instant refundMoment, boolean available,
+                    boolean onlyUpdate) {
+    super();
     id.setUser(user);
     id.setOffer(offer);
     this.enrollMoment = enrollMoment;
-    this.refunddMoment = refunddMoment;
+    this.refundMoment = refundMoment;
     this.available = available;
     this.onlyUpdate = onlyUpdate;
   }
@@ -60,12 +81,12 @@ public class Enrollment {
     this.enrollMoment = enrollMoment;
   }
 
-  public Instant getRefunddMoment() {
-    return refunddMoment;
+  public Instant getRefundMoment() {
+    return refundMoment;
   }
 
-  public void setRefunddMoment(Instant refunddMoment) {
-    this.refunddMoment = refunddMoment;
+  public void setRefundMoment(Instant refundMoment) {
+    this.refundMoment = refundMoment;
   }
 
   public boolean isAvailable() {
@@ -84,5 +105,32 @@ public class Enrollment {
     this.onlyUpdate = onlyUpdate;
   }
 
+  public List<Deliver> getDeliveries() {
+    return deliveries;
+  }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Enrollment other = (Enrollment) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
+  }
 }

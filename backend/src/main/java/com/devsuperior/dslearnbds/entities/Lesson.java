@@ -7,9 +7,28 @@ import java.util.Objects;
 import java.util.Set;
 
 //Não pode ser instanciada!!!!!!! ABSTRACT! Herança total!
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+//Não pode ser instanciado porque abstract é Herança TOTAL!
 @Entity
 @Table(name = "tb_lesson")
-//Herança no banco de dados Relacional - Instancia um tipo e coloca null nos outros OU utiliza chave estrangeira, gerando uma tabela para cada!
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Lesson implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -24,19 +43,24 @@ public abstract class Lesson implements Serializable {
   @JoinColumn(name = "section_id")
   private Section section;
 
+  @OneToMany(mappedBy = "lesson")
+  private List<Deliver> deliveries = new ArrayList<>();
+
   @ManyToMany
-  //Chave composta por isso tem user id e offer id
   @JoinTable(name = "tb_lessons_done",
           joinColumns = @JoinColumn(name = "lesson_id"),
           inverseJoinColumns = {
-              @JoinColumn(name = "user_id"), @JoinColumn(name = "offer_id")
-          })
+                  @JoinColumn(name = "user_id"),
+                  @JoinColumn(name = "offer_id")
+          }
+  )
   private Set<Enrollment> enrollmentsDone = new HashSet<>();
 
-  public Lesson(){
+  public Lesson() {
   }
 
   public Lesson(Long id, String title, Integer position, Section section) {
+    super();
     this.id = id;
     this.title = title;
     this.position = position;
@@ -79,18 +103,32 @@ public abstract class Lesson implements Serializable {
     return enrollmentsDone;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Lesson lesson = (Lesson) o;
-
-    return Objects.equals(id, lesson.id);
+  public List<Deliver> getDeliveries() {
+    return deliveries;
   }
 
   @Override
   public int hashCode() {
-    return id != null ? id.hashCode() : 0;
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Lesson other = (Lesson) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
   }
 }
